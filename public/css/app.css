@@ -1,0 +1,32 @@
+:root {
+  --accent: #1f3a5f;
+  --accent-hover: #172c48;
+  --sidebar-w: 240px;
+  --bg: #f5f6f8;
+  --line: #dfe3e8;
+}
+body { background: var(--bg); color: #1d2733; font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 0.925rem; }
+.btn-primary { --bs-btn-bg: var(--accent); --bs-btn-border-color: var(--accent); --bs-btn-hover-bg: var(--accent-hover); --bs-btn-hover-border-color: var(--accent-hover); --bs-btn-active-bg: var(--accent-hover); --bs-btn-active-border-color: var(--accent-hover); }
+.btn-outline-primary { --bs-btn-color: var(--accent); --bs-btn-border-color: var(--accent); --bs-btn-hover-bg: var(--accent); --bs-btn-hover-border-color: var(--accent); --bs-btn-active-bg: var(--accent); }
+a { color: var(--accent); }
+.form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 .15rem rgba(31,58,95,.15); }
+
+.app-sidebar { width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--line); }
+.app-sidebar .brand { padding: 1rem 1.1rem; border-bottom: 1px solid var(--line); font-weight: 600; color: var(--accent); line-height: 1.25; }
+.app-sidebar .brand small { display: block; font-weight: 400; color: #6b7785; font-size: .75rem; }
+.app-sidebar .nav-link { color: #3a4654; padding: .55rem 1.1rem; display: flex; align-items: center; gap: .65rem; border-left: 3px solid transparent; border-radius: 0; }
+.app-sidebar .nav-link:hover { background: #f1f3f6; }
+.app-sidebar .nav-link.active { color: var(--accent); background: #eef2f7; border-left-color: var(--accent); font-weight: 600; }
+@media (min-width: 992px) {
+  .app-sidebar { position: fixed; top: 0; bottom: 0; left: 0; }
+  .app-main { margin-left: var(--sidebar-w); }
+}
+.app-header { background: #fff; border-bottom: 1px solid var(--line); padding: .7rem 1.5rem; }
+.app-header h1 { font-size: 1.1rem; margin: 0; font-weight: 600; }
+.app-content { padding: 1.5rem; }
+.panel { background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.panel-body { padding: 1.25rem; }
+.table thead th { background: #f1f3f6; font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .02em; color: #4a5766; border-bottom: 1px solid var(--line); }
+.table td, .table th { vertical-align: middle; }
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.login-box { width: 100%; max-width: 380px; }
