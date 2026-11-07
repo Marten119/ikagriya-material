@@ -13,7 +13,7 @@
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead>
-                <tr><th>Nama</th><th>Username</th><th>Email</th><th>Peran</th><th>Status</th><th class="text-end">Aksi</th></tr>
+                <tr><th>Nama</th><th>Username</th><th>Email</th><th>Peran</th><th>Lokasi cluster</th><th>Status</th><th class="text-end">Aksi</th></tr>
             </thead>
             <tbody>
             @forelse ($users as $u)
@@ -23,6 +23,15 @@
                     <td>{{ $u->email ?? '-' }}</td>
                     <td>{{ $u->role }}</td>
                     <td>
+                        @if ($u->isAdmin())
+                            <span class="text-muted">Semua cluster</span>
+                        @elseif ($u->clusters->isEmpty())
+                            <span class="text-danger">Belum diatur</span>
+                        @else
+                            {{ $u->clusters->pluck('cluster_name')->join(', ') }}
+                        @endif
+                    </td>
+                    <td>
                         <span class="badge {{ $u->status === 'aktif' ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $u->status }}</span>
                     </td>
                     <td class="text-end">
@@ -30,7 +39,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="text-center text-muted py-4">Tidak ada pengguna ditemukan.</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-4">Tidak ada pengguna ditemukan.</td></tr>
             @endforelse
             </tbody>
         </table>

@@ -24,7 +24,14 @@ class UpdateUserRequest extends FormRequest
             'role' => ['required', Rule::in(['admin', 'staff'])],
             'status' => ['required', Rule::in(['aktif', 'nonaktif'])],
             'password' => ['nullable', 'confirmed', Password::min(8)->letters()->numbers()],
+            'clusters' => [Rule::requiredIf(fn () => $this->input('role') === 'staff'), 'nullable', 'array'],
+            'clusters.*' => ['integer', 'exists:clusters,id'],
         ];
+    }
+
+    public function messages(): array
+    {
+        return ['clusters.required' => 'Pilih minimal satu lokasi cluster untuk akun staff.'];
     }
 
     public function attributes(): array

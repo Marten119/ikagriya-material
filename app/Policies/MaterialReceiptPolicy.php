@@ -7,10 +7,16 @@ use App\Models\User;
 
 class MaterialReceiptPolicy
 {
-    // Admin boleh mengubah semua transaksi; staff hanya transaksi yang ia catat sendiri.
+    // Admin: semua transaksi. Staff: hanya transaksi buatannya sendiri DAN
+    // hanya jika cluster transaksi itu masih ditetapkan untuk akunnya.
     public function update(User $user, MaterialReceipt $receipt): bool
     {
-        return $user->isAdmin() || $receipt->created_by === $user->id;
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $receipt->created_by === $user->id
+            && in_array($receipt->cluster_id, $user->assignedClusterIds(), true);
     }
 
     // Hapus hanya admin.

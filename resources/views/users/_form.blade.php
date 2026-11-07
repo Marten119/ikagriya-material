@@ -49,8 +49,42 @@
         </div>
     </div>
 
+    <div class="mt-3" id="cluster-access" style="display: none">
+        <label class="form-label">Lokasi cluster yang boleh diinput <span class="text-muted">(khusus staff)</span></label>
+        @php
+            $selectedClusters = collect(old('clusters', $user->exists ? $user->clusters->pluck('id')->all() : []))->map(fn ($v) => (string) $v)->all();
+        @endphp
+        <div class="border rounded p-2 bg-white" style="max-height: 220px; overflow: auto">
+            @forelse ($clusters as $c)
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clusters[]" id="cluster_{{ $c->id }}" value="{{ $c->id }}" @checked(in_array((string) $c->id, $selectedClusters, true))>
+                    <label class="form-check-label" for="cluster_{{ $c->id }}">
+                        {{ $c->cluster_code }} - {{ $c->cluster_name }}@if ($c->status !== 'aktif') <span class="text-muted">(nonaktif)</span>@endif
+                    </label>
+                </div>
+            @empty
+                <div class="text-muted small">Belum ada lokasi cluster. Tambahkan dahulu di menu Data Lokasi Cluster.</div>
+            @endforelse
+        </div>
+        @error('clusters') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+        @error('clusters.*') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+        <div class="form-text">Staff hanya dapat mencatat material masuk pada cluster yang dicentang. Jika hanya satu cluster, kolom cluster pada form input terisi otomatis. Admin selalu dapat memilih semua cluster.</div>
+    </div>
+
     <div class="d-flex gap-2 mt-4">
         <button type="submit" class="btn btn-primary">Simpan</button>
         <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">Batal</a>
     </div>
 </form>
+
+@push('scripts')
+<script>
+(function () {
+    const role = document.getElementById('role');
+    const box = document.getElementById('cluster-access');
+    function sync() { box.style.display = role.value === 'staff' ? '' : 'none'; }
+    role.addEventListener('change', sync);
+    sync();
+})();
+</script>
+@endpush

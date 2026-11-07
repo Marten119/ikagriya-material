@@ -124,15 +124,28 @@ class MaterialReceiptController extends Controller
                 ->get()
             : collect();
 
+        // Admin melihat semua cluster aktif; staff hanya cluster yang ditetapkan admin.
+        $user = auth()->user();
+        $clusters = Cluster::where(function ($q) use ($receipt) {
+            $q->where('status', 'aktif');
+            if ($receipt->exists) {
+                $q->orWhere('id', $receipt->cluster_id);
+            }
+        })
+            ->when(! $user->isAdmin(), fn ($q) => $q->whereIn('id', $user->assignedClusterIds()))
+            ->orderBy('cluster_name')
+            ->get();
+
+        $creating = ! $receipt->exists;
+        $lockedCluster = (! $user->isAdmin() && $creating && $clusters->count() === 1) ? $clusters->first() : null;
+        $noCluster = ! $user->isAdmin() && $creating && $clusters->isEmpty();
+
         return [
             'receipt' => $receipt,
             'categories' => Category::orderBy('id')->get(),
-            'clusters' => Cluster::where(function ($q) use ($receipt) {
-                $q->where('status', 'aktif');
-                if ($receipt->exists) {
-                    $q->orWhere('id', $receipt->cluster_id);
-                }
-            })->orderBy('cluster_name')->get(),
+            'clusters' => $clusters,
+            'lockedCluster' => $lockedCluster,
+            'noCluster' => $noCluster,
             'units' => Unit::where(function ($q) use ($receipt) {
                 $q->where('status', 'aktif');
                 if ($receipt->exists) {

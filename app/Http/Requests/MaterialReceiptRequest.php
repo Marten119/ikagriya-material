@@ -57,6 +57,11 @@ class MaterialReceiptRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:500'],
         ];
 
+        // Staff hanya boleh mencatat pada cluster yang ditetapkan admin (dicek di server).
+        if (! $this->user()->isAdmin()) {
+            $rules['cluster_id'][] = Rule::in($this->user()->assignedClusterIds());
+        }
+
         if (! $receipt) {
             $rules['submit_token'] = ['required', 'uuid'];
         }
@@ -76,6 +81,7 @@ class MaterialReceiptRequest extends FormRequest
             'gt' => ':attribute harus lebih dari 0.',
             'max' => ':attribute terlalu panjang.',
             'uuid' => 'Sesi form tidak valid. Muat ulang halaman.',
+            'cluster_id.in' => 'Lokasi cluster ini tidak ditetapkan untuk akun Anda.',
             'volume.regex' => 'Volume tidak valid: tidak boleh negatif, maksimal 3 angka desimal, tanpa pemisah ribuan.',
             'usage_per_unit.regex' => 'Pemakaian per unit tidak valid: tidak boleh negatif, maksimal 3 angka desimal, tanpa pemisah ribuan.',
             'usage_m2.regex' => 'Pemakaian (m²) tidak valid: tidak boleh negatif, maksimal 2 angka desimal, tanpa pemisah ribuan.',

@@ -9,6 +9,9 @@
     @csrf
     @if ($isEdit) @method('PUT') @else <input type="hidden" name="submit_token" value="{{ $token }}"> @endif
     @error('submit_token') <div class="alert alert-danger py-2">{{ $message }}</div> @enderror
+    @if ($noCluster ?? false)
+        <div class="alert alert-warning py-2">Akun Anda belum memiliki lokasi cluster. Hubungi admin untuk mengaturnya sebelum mencatat material masuk.</div>
+    @endif
 
     <div class="row g-3">
         <div class="col-md-3">
@@ -20,13 +23,19 @@
         </div>
         <div class="col-md-5">
             <label for="cluster_id" class="form-label">Lokasi cluster</label>
-            <select id="cluster_id" name="cluster_id" class="form-select @error('cluster_id') is-invalid @enderror" required>
-                <option value="">Pilih lokasi cluster</option>
-                @foreach ($clusters as $c)
-                    <option value="{{ $c->id }}" @selected((string) old('cluster_id', $receipt->cluster_id) === (string) $c->id)>{{ $c->cluster_code }} - {{ $c->cluster_name }}</option>
-                @endforeach
-            </select>
-            @error('cluster_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            @if ($lockedCluster ?? null)
+                <input type="hidden" name="cluster_id" value="{{ $lockedCluster->id }}">
+                <input type="text" id="cluster_id" class="form-control" value="{{ $lockedCluster->cluster_code }} - {{ $lockedCluster->cluster_name }}" readonly>
+                <div class="form-text">Ditetapkan oleh admin untuk akun Anda.</div>
+            @else
+                <select id="cluster_id" name="cluster_id" class="form-select @error('cluster_id') is-invalid @enderror" required>
+                    <option value="">Pilih lokasi cluster</option>
+                    @foreach ($clusters as $c)
+                        <option value="{{ $c->id }}" @selected((string) old('cluster_id', $receipt->cluster_id) === (string) $c->id)>{{ $c->cluster_code }} - {{ $c->cluster_name }}</option>
+                    @endforeach
+                </select>
+            @endif
+            @error('cluster_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
         </div>
         <div class="col-md-4">
             <label for="category_id" class="form-label">Kategori material</label>
@@ -97,7 +106,7 @@
     </div>
 
     <div class="d-flex gap-2 mt-4">
-        <button type="submit" id="btn-save" class="btn btn-primary">Simpan</button>
+        <button type="submit" id="btn-save" class="btn btn-primary" data-locked="{{ ($noCluster ?? false) ? '1' : '0' }}" @disabled($noCluster ?? false)>Simpan</button>
         <button type="button" id="btn-reset" class="btn btn-outline-secondary">Reset</button>
         <a href="{{ $cancelUrl }}" class="btn btn-outline-secondary">Batal</a>
     </div>
@@ -154,7 +163,8 @@
     form.querySelector('#btn-reset').addEventListener('click', function () {
         if (form.dataset.mode === 'edit') { window.location.reload(); return; }
         form.querySelector('#transaction_date').value = form.dataset.today;
-        form.querySelector('#cluster_id').value = '';
+        const clEl = form.querySelector('#cluster_id');
+        if (clEl && !clEl.readOnly) clEl.value = '';
         cat.value = '';
         setOptions(null);
         unit.value = '';
@@ -175,7 +185,7 @@
     });
     window.addEventListener('pageshow', function () {
         form.dataset.submitted = '';
-        btn.disabled = false;
+        btn.disabled = btn.dataset.locked === '1';
         btn.textContent = 'Simpan';
     });
 })();
